@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:woocommerce/woocommerce.dart';
 import 'package:woocommerce/models/product_category.dart';
@@ -22,6 +24,7 @@ class _CategoryState extends State<Category> {
 
   getCategory() async {
     _category = await _wooCommerce.getProductCategories();
+    printWrapped('_category: ' + _category.toString());
     setState(() {
       //make state for category
     });
@@ -79,12 +82,20 @@ class _CategoryState extends State<Category> {
                             offset: Offset(0.0, 2.0),
                             blurRadius: 6.0)
                       ]),
-                  child: Stack(
-                    children: [
-                      for (var i = 0; i < _category.length; i++)
-                        cat == _category.length ??
-                            Image(image: NetworkImage(cat.image.src))
-                    ],
+                  child: ListView(
+                    children: List.generate(_category.length, (index) {
+                      print(_category[index].image);
+                      if (_category[index].image == null) {
+                        return Text('image not found');
+                      }
+                      return Image.network(_category[index].image.src != null
+                          ? _category[index].image.src
+                          : '');
+                    }),
+//                      for (var i = 0; i < _category.length; i++)
+//                        cat == _category.length ??
+//
+//                    ],
                   ),
                 )
               ],
@@ -93,5 +104,11 @@ class _CategoryState extends State<Category> {
         },
       ),
     );
+  }
+
+  // by amen to print long response
+  void printWrapped(String text) {
+    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
   }
 }
